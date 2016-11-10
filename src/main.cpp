@@ -10,7 +10,7 @@
 using namespace std;
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
- void execute(vector<char**>cmd, vector<char>con);
+void execute(vector<char**>cmd, vector<char>con);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 {
