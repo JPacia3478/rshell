@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,6 +12,7 @@ using namespace std;
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
 void execute(vector<char**>cmd, vector<char>con);
+bool test();
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 {
@@ -203,6 +205,11 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         skip:
 		delete [] argv;
 	}
+}
+
+bool test()
+{
+	
 }
 
 int main()
