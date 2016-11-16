@@ -196,10 +196,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         }
         else
         {
-            while(wait(&status) != pid);
-            if (con[con_index] == '|')
+            while(wait(&status) != pid)
             {
-            	break;
+	            if (con[con_index] == '|')
+	            {
+	            	break;
+	            }
             }
         }
         skip:
