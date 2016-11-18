@@ -127,7 +127,6 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 			temp.erase(0,2);
 			temp.erase(temp.size() - 2, temp.size());
 		}
-		cout << temp << endl;
 		cmd.push_back(temp);
 		letter_flag = true;
 	}
@@ -233,10 +232,10 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		// }
 		// Then store the indexs into argv and push into a vector of argv
   		
-  		// for(int k = 0; k < temp.size(); k++)
-  		// {
-  		// 	cout << temp.at(k) << endl;
-  		// }
+  		for(int k = 0; k < temp.size(); k++)
+  		{
+  			cout << temp.at(k) << endl;
+  		}
   		
 		char** argv;
 		argv = new char *[temp.size()];
@@ -250,13 +249,15 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		// 	cout << k << endl;
 		// 	cout << temp.at(k) << endl;
 		// }
-		
+// ROOT OF OCCURING PROBLEMS...
+//----------------------------------------------------------------------------------		
  		for (int m = 0; m < (temp.size() - 1); m++)
  		{
  		    copy = temp.at(m);
  		    count = strlen(copy);
  			argv[m] = new char [count];
  			strcpy ( argv[m], copy );
+ 			cout << argv << endl;	//<--from [ -e /test/file/path ] to 0x1082e60??? :/
  		}
  		
  		if( argv[temp.size() - 1] != '\0')
@@ -267,13 +268,10 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
  			count = strlen(nullchar);
  			argv[temp.size() - 1] = new char[count];
  			strcpy ( argv[temp.size() - 1], nullchar );
- 			
-// ROOT OF OCCURING PROBLEMS...
-//----------------------------------------------------------------------------------
- 			cout << argv << endl;	//<-- input comes out fine here
+ 			cout << "Before end of if statment that adds NULL to argv: " << argv << endl;	//<--not provoked
  		}
  		
- 		cout << argv << endl; //<--from [ -e /test/file/path ] to 0x1082e60??? :/
+ 		cout << "After if statement: " << argv << endl; //<--Still comes out weird here
 //----------------------------------------------------------------------------------
 
   		vec_cmd.push_back(argv);
@@ -326,7 +324,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	{
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-		cout << argv << endl; //<--argv still comes out weird here :/
+		cout << "argv inside execute(): " << argv << endl; //<--argv still comes out weird here :/
 		if (con[con_index] == '[')
 		{
 			con_index = con_index + 2;
