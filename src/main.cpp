@@ -12,16 +12,15 @@ using namespace std;
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
 void execute(vector<char**>cmd, vector<char>con);
-bool test();
+bool test(char* flag, char* path);
 
-void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Original user input, vector holding commands, and vector holding connector characters
+void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 {
 	vector<string> cmd;
 	bool end_flag = false;
 	bool bracket_flag = false;
 	bool letter_flag = false;
 	int i;
-
 	while (letter_flag == false)
 	{
 		string temp;
@@ -51,6 +50,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 			{
 				bracket_flag == true;
 				con.push_back(letter[i]);
+				i++;
 			}
 			else if (letter[i] == '&' || letter[i] == '|')      				// If the char is '&' or '|' push into the connector stack 
 			{
@@ -62,42 +62,73 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 			{
 				// Nothing
 			}
-			if (end_flag == true || bracket_flag == true)                       // If the current letter is a connector/bracket
+			if (end_flag == true || bracket_flag == true)                       // If the current letter is a connector 
 			{
-				if (temp[0] == ' ')
+				bool clean = false;
+				while( clean == false )
 				{
-					temp.erase(0, 1);	// remove a whitespace
+					if (temp[0] == ' ')
+					{
+						temp.erase(0, 1);
+						if (temp[0] == '[')
+						{
+							temp.erase(0, 1);
+						}
+					}
+					else if(temp[0] == '[')
+					{
+						temp.erase(0,1);
+						if (temp[0] == ' ')
+						{
+							temp.erase(0, 1);
+						}
+					}
+					else if(temp[(temp.size() - 1)] == ' ')
+					{
+						temp.erase((temp.size() - 1), (temp.size()));
+						if(temp[temp.size() - 1] == ']')
+						{
+							temp.erase((temp.size() - 1), (temp.size()));
+						}
+					}
+					else if(temp[(temp.size() - 1)] == ']')
+					{
+						temp.erase((temp.size() - 1), (temp.size()));
+						if(temp[temp.size() - 1] == ' ')
+						{
+							temp.erase((temp.size() - 1), (temp.size()));
+						}
+					}
+					else
+						clean = true;
 				}
-				else if(temp[0] == '[')
-				{
-					temp.erase(0,2);	// remove an open bracket and a whitespace
-				}
-				cmd.push_back(temp);	// add temporary string to the command vector
-				temp = "";		// reset temporary string
+				cmd.push_back(temp);
+				temp = "";
 			}
 			else
 			{
-				temp += letter[i];	// Add character to a temporary string
+				temp += letter[i];
 			}
 			
-			end_flag = false;		// Reset end flag
+			end_flag = false;
 
 		}
 		if (temp[0] == ' ')                                      // Push back the last string that does not have a connector
 		{
 			temp.erase(0, 1);
 		}
-		else if(temp[0] == '[' && temp [1] != ' ')	// <--same condition as below??
+		else if(temp[0] == '[' && temp [1] != ' ')
 		{
 			temp.erase(0,1);
 			temp.erase(temp.size() - 1, temp.size());
 		}
-		else if(temp[0] == '[' && temp [1] == ' ')	// <--
+		else if(temp[0] == '[' && temp [1] == ' ')
 		{
 			temp.erase(0,2);
 			temp.erase(temp.size() - 2, temp.size());
 		}
-		cmd.push_back(temp);		// Finally add temporary string to the command vector
+		cout << temp << endl;
+		cmd.push_back(temp);
 		letter_flag = true;
 	}
 
@@ -125,7 +156,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 	
 	for (int k = 0; k < cmd.size(); k++)
 	{
-		cout << cmd.at(k) << endl;
+		// cout << cmd.at(k) << endl;
 		string hold = cmd.at(k);                // Temp holder for the first command
 
 		vector<char*> temp;                     // Vector for the single command line
@@ -171,8 +202,9 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 						temp_hold[index] = '\0';                        		// Add Null Character
 					}
 					// cout << "PUSHED" << endl;
-					temp.push_back(temp_hold);                      			// Push the array onto the vector
-					temp_hold = new char[hold.length()];            		// Reset the array
+					if(temp_hold[0] != ' ')
+						temp.push_back(temp_hold);                      		// Push the array onto the vector
+					temp_hold = new char[hold.length()];            			// Reset the array
 					if(z != (hold.length() - 1))
 					{
 						index = 0;
@@ -211,7 +243,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 		char *copy; 
 		int count;
 		
-		cout << endl << temp.size() << endl;
+		// cout << endl << temp.size() << endl;
 		
 		// for ( int k = 0; k < temp.size(); k++)
 		// {
@@ -235,10 +267,10 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
  			count = strlen(nullchar);
  			argv[temp.size() - 1] = new char[count];
  			strcpy ( argv[temp.size() - 1], nullchar );
+ 			cout << argv << endl;	//<-- input comes out fine here
  		}
  		
- 		cout << endl;
- 		
+ 		cout << argv << endl; //<--from [ -e /test/file/path ] to 0x1082e60??? :/
   		vec_cmd.push_back(argv);
   		// cout << endl << "Pushed into vec_cmd" << endl;
   		// cmd_flag = false;
@@ -270,7 +302,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 	// TEST SPECIFIC
 	// cout << 2 << endl;
 	// cout << test_t[2] << endl;
-	
+	execute(vec_cmd, con);
 	cout << "End\n";
 	
 }
@@ -285,7 +317,6 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 	{
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-		cout << cmd.at(cmd_index) << endl;
 		pid_t pid;
         int status;
         if ((pid = fork()) < 0)
@@ -342,9 +373,52 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Origina
 	}
 }
 
-bool test()
+bool test(char* flag, char* path)
 {
 	struct stat sb;
+	
+	if (stat(path, &sb) < 0)
+	{
+		perror("ERROR");
+		cout << "(False)" << endl;
+		return false;
+	}
+	else
+	{
+		if (flag == "-f")
+		{
+			if (S_ISREG(sb.st_mode) < 0)
+			{
+				perror("ERROR");
+				cout << "(False)" << endl;
+				return false;
+			}
+			else
+			{
+				cout << "(True)" << endl;
+				return true;
+			}
+		}
+		else if (flag == "-d")
+		{
+			if (S_ISDIR(sb.st_mode) < 0)
+			{
+				perror("ERROR");
+				cout << "(False)" << endl;
+				return false;
+			}
+			else
+			{
+				cout << "(True)" << endl;
+				return true;
+			}
+		}
+		else
+		{
+			cout << "(True)" << endl;
+			return true;
+		}
+	}
 }
 
 int main()
@@ -361,7 +435,6 @@ int main()
 	    char *argv[64];
 	    getline(cin, input);
 
-	    
 		char *temp = new char[input.length() + 1];
 		strcpy(temp, input.c_str());
 	    if (strcmp(temp, "exit") == 0)
