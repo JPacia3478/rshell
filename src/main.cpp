@@ -11,7 +11,7 @@
 using namespace std;
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
-void execute(vector<char**>cmd, vector<char>con);
+bool execute(vector<char**>cmd, vector<char>con);
 bool test(char* flag, char* path);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
@@ -267,11 +267,17 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
  			count = strlen(nullchar);
  			argv[temp.size() - 1] = new char[count];
  			strcpy ( argv[temp.size() - 1], nullchar );
+ 			
+// ROOT OF OCCURING PROBLEMS...
+//----------------------------------------------------------------------------------
  			cout << argv << endl;	//<-- input comes out fine here
  		}
  		
  		cout << argv << endl; //<--from [ -e /test/file/path ] to 0x1082e60??? :/
+//----------------------------------------------------------------------------------
+
   		vec_cmd.push_back(argv);
+  		
   		// cout << endl << "Pushed into vec_cmd" << endl;
   		// cmd_flag = false;
  	}
@@ -302,25 +308,26 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	// TEST SPECIFIC
 	// cout << 2 << endl;
 	// cout << test_t[2] << endl;
-	execute(vec_cmd, con);
+	bool ex = execute(vec_cmd, con);	// execute converted into a bool to accomodate precedence operators
 	cout << "End\n";
 	
 }
 
 
- void execute(vector<char**>cmd, vector<char>con)
+ bool execute(vector<char**>cmd, vector<char>con)
  {
 	int cmd_index = 0;
 	int con_index = 0;
 	pid_t pid;
     int status;
+    bool executed = false;
     
 	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)	// Scan user input
 	{
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-		
-		if (con[con_index == '[')
+		cout << argv << endl; //<--argv still comes out weird here :/
+		if (con[con_index] == '[')
 		{
 			con_index = con_index + 2;
 			
@@ -333,11 +340,38 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             			con_index = con_index + 2;
             			goto skip;
             		}
-            		else (con[con_index] == ';')
+            		else if (con[con_index] == ';')
             		{
             			con_index++;
             			goto skip;
         			}
+        			else if (con[con_index] == '&')
+        			{
+        				con_index = con_index + 2;
+        				break;
+        			}
+        			else
+        			{
+        				exit(1);
+        			}
+				}
+				else
+				{
+					if (con[con_index] == '|')
+					{
+						con_index = con_index + 2;
+						break;
+					}
+					else if (con[con_index] == ';')
+					{
+						con_index++;
+						goto skip;
+					}
+					else
+					{
+						con_index = con_index + 2;
+						goto skip;
+					}
 				}
 			}
 			else
@@ -345,18 +379,49 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 				char* hold = argv[0];
 				if (hold[0] == '/')
 				{
-					if (!test("-e", argv[0]))	//<--function for test command
+					string e = "-e";
+					char *flag;
+					strcpy(flag, e.c_str());
+					
+					if (!test(flag, argv[0]))	//<--function for test command
 					{
 						if (con[con_index] == '|')
             			{
             				con_index = con_index + 2;
             				goto skip;
             			}
-            			else (con[con_index] == ';')
+            			else if (con[con_index] == ';')
             			{
             				con_index++;
             				goto skip;
         				}
+        				else if (con[con_index] == '&')
+        				{
+        					con_index = con_index + 2;
+        					break;
+        				}
+        				else
+        				{
+        					exit(1);
+        				}
+					}
+					else
+					{
+						if (con[con_index] == '|')
+						{
+							con_index = con_index + 2;
+							break;
+						}
+						else if (con[con_index] == ';')
+						{
+							con_index++;
+							goto skip;
+						}
+						else
+						{
+							con_index = con_index + 2;
+							goto skip;
+						}
 					}
 				}
 			}
@@ -374,6 +439,11 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             	con_index++;
             	goto skip;
             }
+            else if (con[con_index] == '&')
+            {
+            	con_index = con_index + 2;
+            	break;
+            }
             else
             {
                 exit(1);
@@ -386,7 +456,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
                 perror("ERROR");
                 if(con[con_index] == '|')
                 {
-                  con_index + 2;
+                	con_index + 2;
                     goto skip;
                 }
                 else if (con[con_index] == ';')
@@ -394,6 +464,11 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
                 	con_index++;
                 	goto skip;
                 }
+                else if (con[con_index] == '&')
+            	{
+            		con_index = con_index + 2;
+            		break;
+            	}
                 else
                 {
                     exit(1);
@@ -406,7 +481,18 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             {
 	            if (con[con_index] == '|')
 	            {
+	            	con_index = con_index + 2;
 	            	break;		// Break out if '|' is detected and previous command has succeeded
+	            }
+	            else if (con[con_index] == ';')
+	            {
+	            	con_index++;
+	            	goto skip;
+	            }
+	            else
+	            {
+	            	con_index = con_index + 2;
+	            	goto skip;
 	            }
             }
         }
@@ -414,11 +500,14 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         skip:
 		delete [] argv;		// reset argument values
 	}
+	return executed;
 }
 
 bool test(char* flag, char* path)
 {
 	struct stat sb;
+	
+	cout << "test: " << flag << " " << path << endl;	//<--check path and flag
 	
 	if (stat(path, &sb) < 0)
 	{
