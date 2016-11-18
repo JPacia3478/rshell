@@ -312,19 +312,61 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
  {
 	int cmd_index = 0;
 	int con_index = 0;
-
+	pid_t pid;
+    int status;
+    
 	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)	// Scan user input
 	{
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-		pid_t pid;
-        int status;
+		
+		if (con[con_index == '[')
+		{
+			con_index = con_index + 2;
+			
+			if (argv[0] == "-e" || argv[0] == "-f" || argv[0] == "-d")
+			{
+				if (!test(argv[0], argv[1]))	//<--function for test command
+				{
+					if (con[con_index] == '|')
+            		{
+            			con_index = con_index + 2;
+            			goto skip;
+            		}
+            		else (con[con_index] == ';')
+            		{
+            			con_index++;
+            			goto skip;
+        			}
+				}
+			}
+			else
+			{
+				char* hold = argv[0];
+				if (hold[0] == '/')
+				{
+					if (!test("-e", argv[0]))	//<--function for test command
+					{
+						if (con[con_index] == '|')
+            			{
+            				con_index = con_index + 2;
+            				goto skip;
+            			}
+            			else (con[con_index] == ';')
+            			{
+            				con_index++;
+            				goto skip;
+        				}
+					}
+				}
+			}
+		}
         if ((pid = fork()) < 0)
         {
             perror("ERROR");
             if(con[con_index] == '|')
             {
-              con_index + 2;
+              con_index = con_index + 2;
               goto skip;
             }
             else if (con[con_index] == ';')
@@ -368,6 +410,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	            }
             }
         }
+        
         skip:
 		delete [] argv;		// reset argument values
 	}
