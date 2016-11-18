@@ -14,7 +14,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
 void execute(vector<char**>cmd, vector<char>con);
 bool test();
 
-void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
+void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)	// Original user input, vector holding commands, and vector holding connector characters
 {
 	vector<string> cmd;
 	bool end_flag = false;
@@ -62,42 +62,42 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 			{
 				// Nothing
 			}
-			if (end_flag == true || bracket_flag == true)                       // If the current letter is a connector 
+			if (end_flag == true || bracket_flag == true)                       // If the current letter is a connector/bracket
 			{
 				if (temp[0] == ' ')
 				{
-					temp.erase(0, 1);
+					temp.erase(0, 1);	// remove a whitespace
 				}
 				else if(temp[0] == '[')
 				{
-					temp.erase(0,2);
+					temp.erase(0,2);	// remove an open bracket and a whitespace
 				}
-				cmd.push_back(temp);
-				temp = "";
+				cmd.push_back(temp);	// add temporary string to the command vector
+				temp = "";		// reset temporary string
 			}
 			else
 			{
-				temp += letter[i];
+				temp += letter[i];	// Add character to a temporary string
 			}
 			
-			end_flag = false;
+			end_flag = false;		// Reset end flag
 
 		}
 		if (temp[0] == ' ')                                      // Push back the last string that does not have a connector
 		{
 			temp.erase(0, 1);
 		}
-		else if(temp[0] == '[' && temp [1] != ' ')
+		else if(temp[0] == '[' && temp [1] != ' ')	// <--same condition as below??
 		{
 			temp.erase(0,1);
 			temp.erase(temp.size() - 1, temp.size());
 		}
-		else if(temp[0] == '[' && temp [1] == ' ')
+		else if(temp[0] == '[' && temp [1] == ' ')	// <--
 		{
 			temp.erase(0,2);
 			temp.erase(temp.size() - 2, temp.size());
 		}
-		cmd.push_back(temp);
+		cmd.push_back(temp);		// Finally add temporary string to the command vector
 		letter_flag = true;
 	}
 
@@ -271,7 +271,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	// cout << 2 << endl;
 	// cout << test_t[2] << endl;
 	
-	cout << "\nEnd";
+	cout << "End\n";
 	
 }
 
@@ -281,10 +281,11 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	int cmd_index = 0;
 	int con_index = 0;
 
-	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)
+	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)	// Scan user input
 	{
-			char **argv = new char *[cmd.size()];
+		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
+		cout << cmd.at(cmd_index) << endl;
 		pid_t pid;
         int status;
         if ((pid = fork()) < 0)
@@ -332,18 +333,18 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             {
 	            if (con[con_index] == '|')
 	            {
-	            	break;
+	            	break;		// Break out if '|' is detected and previous command has succeeded
 	            }
             }
         }
         skip:
-		delete [] argv;
+		delete [] argv;		// reset argument values
 	}
 }
 
 bool test()
 {
-	
+	struct stat sb;
 }
 
 int main()
