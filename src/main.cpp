@@ -12,7 +12,7 @@ using namespace std;
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con);
 bool execute(vector<char**>cmd, vector<char>con);
-bool test(char* flag, char* path);
+bool test(const char* flag, char* path);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 {
@@ -49,7 +49,6 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 			else if(letter[i] == ']')
 			{
 				bracket_flag == true;
-				con.push_back(letter[i]);
 				i++;
 			}
 			else if (letter[i] == '&' || letter[i] == '|')      				// If the char is '&' or '|' push into the connector stack 
@@ -232,10 +231,10 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		// }
 		// Then store the indexs into argv and push into a vector of argv
   		
-  		for(int k = 0; k < temp.size(); k++)
-  		{
-  			cout << temp.at(k) << endl;
-  		}
+  		// for(int k = 0; k < temp.size(); k++)
+  		// {
+  		// 	cout << temp.at(k) << endl;
+  		// }
   		
 		char** argv;
 		argv = new char *[temp.size()];
@@ -249,15 +248,18 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		// 	cout << k << endl;
 		// 	cout << temp.at(k) << endl;
 		// }
-// ROOT OF OCCURING PROBLEMS...
-//----------------------------------------------------------------------------------		
+// ROOT OF INPUT PARSING PROBLEMS...
+//------------------------------------------------------------------------------------------------------------------		
+ 		int argv_count = 0;
  		for (int m = 0; m < (temp.size() - 1); m++)
  		{
  		    copy = temp.at(m);
+ 		    cout << copy << endl;	//<--comes out fine here
  		    count = strlen(copy);
  			argv[m] = new char [count];
- 			strcpy ( argv[m], copy );
- 			cout << argv << endl;	//<--from [ -e /test/file/path ] to 0x1082e60??? :/
+ 			strcpy ( argv[m], copy );	//<--something funny seems to happen here?
+ 			cout << argv[m] << endl;	//<--from [ -e /test/file/path ] to 0x1082e60??? :/   // ADDED the index - Mitch
+ 			argv_count++;
  		}
  		
  		if( argv[temp.size() - 1] != '\0')
@@ -268,11 +270,19 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
  			count = strlen(nullchar);
  			argv[temp.size() - 1] = new char[count];
  			strcpy ( argv[temp.size() - 1], nullchar );
- 			cout << "Before end of if statment that adds NULL to argv: " << argv << endl;	//<--not provoked
+ 			cout << "Before end of if statment that adds NULL to argv: " << argv[temp.size() - 1] << endl;	//<--not provoked // ADDED the index - Mitch
+			argv_count++;
  		}
  		
- 		cout << "After if statement: " << argv << endl; //<--Still comes out weird here
-//----------------------------------------------------------------------------------
+ 		// cout << "After if statement: " << argv << endl; //<--Still comes out weird here
+ 		// Need for loop here to print out argv
+ 		cout << "After if statement: " << endl;
+ 		for(int p = 0; p < argv_count; p++)
+ 		{
+ 			cout << p << endl;
+ 			cout << argv[p] << endl;
+ 		}
+//-------------------------------------------------------------------------------------------------------------------
 
   		vec_cmd.push_back(argv);
   		
@@ -318,20 +328,40 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	int con_index = 0;
 	pid_t pid;
     int status;
-    bool executed = false;
+    bool executed;
     
 	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)	// Scan user input
 	{
+		executed = false;
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
 		cout << "argv inside execute(): " << argv << endl; //<--argv still comes out weird here :/
 		if (con[con_index] == '[')
 		{
-			con_index = con_index + 2;
-			
-			if (argv[0] == "-e" || argv[0] == "-f" || argv[0] == "-d")
+			con_index++;
+			string e = "-e";
+			string f = "-f";
+			string d = "-d";
+			char* cd = new char[2];
+			char* ce = new char[2];
+			char* cf = new char[2];
+			cd[0] = d[0];
+			cd[1] = d[1];
+			ce[0] = e[0];
+			ce[1] = e[1];
+			cf[0] = f[0];
+			cf[1] = f[1];
+			cout << "argv before test(): " << argv << endl;			
+			//strcpy(cd,d.c_str());
+			//strcpy(ce,e.c_str());
+			//strcpy(cf,f.c_str());
+			cout << cd << " " << ce << " " << cf << endl;
+			cout << argv[0] << endl;
+			if (/*argv[0] == cd ||*/ strcmp(argv[0],ce) == 0 /*|| argv[0] == cf*/)
 			{
-				if (!test(argv[0], argv[1]))	//<--function for test command
+				cout << argv[0] << " " << argv[1] << endl;
+				bool tested = test(argv[0], argv[1]);//<--function for test command
+				if (!tested)
 				{
 					if (con[con_index] == '|')
             		{
@@ -350,11 +380,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         			}
         			else
         			{
-        				exit(1);
+        				goto skip;
         			}
 				}
 				else
 				{
+					executed = true;
 					if (con[con_index] == '|')
 					{
 						con_index = con_index + 2;
@@ -377,11 +408,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 				char* hold = argv[0];
 				if (hold[0] == '/')
 				{
-					string e = "-e";
-					char *flag;
-					strcpy(flag, e.c_str());
 					
-					if (!test(flag, argv[0]))	//<--function for test command
+					string e = "-e";
+					//char *flag;
+					//strcpy(flag, e.c_str());
+					bool tested = test(e.c_str(), argv[0]);
+					if (!tested)	//<--function for test command
 					{
 						if (con[con_index] == '|')
             			{
@@ -400,11 +432,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         				}
         				else
         				{
-        					exit(1);
+        					goto skip;
         				}
 					}
 					else
 					{
+						executed = true;
 						if (con[con_index] == '|')
 						{
 							con_index = con_index + 2;
@@ -424,8 +457,10 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 				}
 			}
 		}
+		cout << "argv before fork(): " << argv << endl;
         if ((pid = fork()) < 0)
         {
+        	
             perror("ERROR");
             if(con[con_index] == '|')
             {
@@ -444,11 +479,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             }
             else
             {
-                exit(1);
+                goto skip;
             }
         }
         else if (pid == 0)
         {
+        	cout << "argv after fork(): " << argv << endl;
             if (execvp(argv[0], argv) < 0)
             {
                 perror("ERROR");
@@ -469,7 +505,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
             	}
                 else
                 {
-                    exit(1);
+                    goto skip;
                 }
             }
         }
@@ -493,6 +529,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	            	goto skip;
 	            }
             }
+            executed = true;
         }
         
         skip:
@@ -501,9 +538,22 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 	return executed;
 }
 
-bool test(char* flag, char* path)
+bool test(const char* flag, char* path)
 {
 	struct stat sb;
+	string d = "-d";
+	string f = "-f";
+	
+	char* cd = new char[2];
+	char* cf = new char[2];
+	
+	cd[0] = d[0];
+	cd[1] = d[1];
+	cf[0] = f[0];
+	cf[1] = f[1];
+	
+	//strcpy(cd,d.c_str());
+	//strcpy(cf,f.c_str());
 	
 	cout << "test: " << flag << " " << path << endl;	//<--check path and flag
 	
@@ -515,7 +565,7 @@ bool test(char* flag, char* path)
 	}
 	else
 	{
-		if (flag == "-f")
+		if (strcmp(flag,cf) == 0)
 		{
 			if (S_ISREG(sb.st_mode) < 0)
 			{
@@ -529,7 +579,7 @@ bool test(char* flag, char* path)
 				return true;
 			}
 		}
-		else if (flag == "-d")
+		else if (strcmp(flag,cd) == 0)
 		{
 			if (S_ISDIR(sb.st_mode) < 0)
 			{
