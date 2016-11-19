@@ -149,13 +149,13 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 				}
 				if((para_flag == true && end_flag == true) || (para_flag == true && bracket_flag == true) || (para_flag == false && para_end == true))
 				{
-					cout << "PUSHED PARA VEC" << endl;
+					// cout << "PUSHED PARA VEC" << endl;
 					p_cmd.push_back(temp);
 					para_end = false;
 				}
 				else if (para_flag == false && para_end == false)
 				{
-					cout << "PUSHED REG VEC" << endl;
+					// cout << "PUSHED REG VEC" << endl;
 					cmd.push_back(temp);
 				}
 				temp = "";
@@ -170,25 +170,27 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			// para_end = false;
 			
 		}
-		// while (clean == true)
-		if (temp[0] == ' ')                                      // Push back the last string that does not have a connector
+		bool clean = false;
+		while (clean == false)
 		{
-			temp.erase(0, 1);
-		}
-		else if(temp[0] == '[' && temp [1] != ' ')
-		{
-			temp.erase(0,1);
-			temp.erase(temp.size() - 1, temp.size());
-		}
-		else if(temp[0] == '[' && temp [1] == ' ')
-		{
-			temp.erase(0,2);
-			temp.erase(temp.size() - 2, temp.size());
+			clean = false;
+			if (temp[0] == ' ')                                      // Push back the last string that does not have a connector
+			{
+				temp.erase(0, 1);
+			}
+			else if(temp[temp.size() - 1] == '|' || temp[temp.size() - 1] == '&' || temp[temp.size() - 1] == ' ')
+			{
+				temp.erase(temp.size() - 1, temp.size());
+			}
+			else
+			{
+				clean = true;
+			}
 		}
 		
-		if(temp != "" && para_end == false)
+		if((temp != "" || temp[0] != ' ') && para_end == false)
 			cmd.push_back(temp);
-		else if(temp != "" && para_end == true)
+		else if((temp != "" || temp[0] != ' ') && para_end == true)
 			p_cmd.push_back(temp);
 		letter_flag = true;
 	
@@ -197,28 +199,28 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 // -------------------------- TEST ---------------------------------------------
 	//  // Print the vectors ---------------------------------------------------
 	
-	cout << endl << "Reg Commands: " << endl;
-	for(int j = 0; j < cmd.size(); j++)
-	{
-	    cout << j << " " << cmd.at(j) << endl;
-	}
-	cout << endl << "Paranthesis Commands: " << endl;
-	for(int u = 0; u < p_cmd.size(); u++)
-	{
+	// cout << endl << "Reg Commands: " << endl;
+	// for(int j = 0; j < cmd.size(); j++)
+	// {
+	//     cout << j << " " << cmd.at(j) << endl;
+	// }
+	// cout << endl << "Paranthesis Commands: " << endl;
+	// for(int u = 0; u < p_cmd.size(); u++)
+	// {
 		
-		cout << u << " " << p_cmd.at(u) << endl;
-	}
-	cout << endl << "Reg Connectors: " << endl;
-	for(int w = 0; w < con.size(); w++)
-	{
-		cout << w << " " << con.at(w) << endl;
-	}
+	// 	cout << u << " " << p_cmd.at(u) << endl;
+	// }
+	// cout << endl << "Reg Connectors: " << endl;
+	// for(int w = 0; w < con.size(); w++)
+	// {
+	// 	cout << w << " " << con.at(w) << endl;
+	// }
 	
-	cout << endl << "Paranthesis Connectors: " << endl;
-	for(int p = 0; p < p_con.size(); p++)
-	{
-		cout << p << " " << p_con.at(p) << endl;
-	}
+	// cout << endl << "Paranthesis Connectors: " << endl;
+	// for(int p = 0; p < p_con.size(); p++)
+	// {
+	// 	cout << p << " " << p_con.at(p) << endl;
+	// }
 
 // -----------------------------------------------------------------------------	
 	
@@ -274,7 +276,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 					{
 						temp_hold[index] = '\0';                        		// Add Null Character
 					}
-					cout << "PUSHED" << endl;
+					// cout << "PUSHED" << endl;
 					if(temp_hold[0] != ' ')
 						temp.push_back(temp_hold);                      		// Push the array onto the vector
 					temp_hold = new char[hold.length()];            			// Reset the array
@@ -287,15 +289,16 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 				}
 			}
 			
-			if(temp_hold[index] != '\0')
+			if(temp_hold[index] != '\0' && temp_hold[0] != ' ')
 			{
 				temp_hold[index]= '\0';                             			// Add Null Character on last string
 			}
 			
-			temp.push_back(temp_hold);                         					// Add last string
-			cout << "PUSHED OUTSIDE" << endl;
+			if(temp_hold[0] != ' ')
+				temp.push_back(temp_hold);                         				// Add last string
+			// cout << "PUSHED OUTSIDE" << endl;
 			temp.push_back('\0');                               				// Have the last index be '\0'
-			cout << "PUSHED NULL" << endl;
+			// cout << "PUSHED NULL" << endl;
 			
 			
 		char** argv;
@@ -303,7 +306,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 		char *copy; 
 		int count;
 		
-		cout << endl << temp.size() << endl;
+		// cout << endl << temp.size() << endl;
 		
 		// for ( int k = 0; k < temp.size(); k++)
 		// {
@@ -332,7 +335,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
  		cout << endl;
  		
   		vec_cmd.push_back(argv);
-  		cout << endl << "Pushed into vec_cmd" << endl;
+  		// cout << endl << "Pushed into vec_cmd" << endl;
   		// cmd_flag = false;
  	}
  	
@@ -342,6 +345,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
  	
  	// PARANTHESIS -------------------------------------------------------------
 
+	bool newfx = false;
  	for (int q = 0; q < p_cmd.size(); q++)
 	{
 		cout << p_cmd.at(q) << endl;
@@ -355,6 +359,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			int p_index = 0;                                          			// Index for temp_hold
 			bool p_quote_flag = false;
 			int p_quote_count = 0;
+			// newfx = false;
 			
 			for (int b = 0; b < p_hold.length(); b++)
 			{
@@ -381,7 +386,9 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 				else if (p_hold[b] != ' ')
 				{
 					p_temp_hold[p_index] = p_hold[b];
+					cout << p_hold[b] << endl;
 					p_index++;
+					newfx = false;
 				}
 				else
 				{
@@ -389,10 +396,27 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 					{
 						p_temp_hold[p_index] = '\0';                        		// Add Null Character
 					}
-					cout << "PUSHED" << endl;
-					if(p_temp_hold[0] != ' ')
+					
+					if(p_temp_hold[0] != ' ' && p_temp_hold[1] == '\0')
+					{
 						para_temp.push_back(p_temp_hold);                      		// Push the array onto the vector
-					p_temp_hold = new char[p_hold.length()];            			// Reset the array
+						if(b != (p_hold.length() - 1))
+						{
+							p_temp_hold = new char[p_hold.length()];
+							newfx = true;
+						}
+					}
+					else if(p_temp_hold[0] != ' ')
+					{
+						para_temp.push_back(p_temp_hold);
+						if(b != (p_hold.length() - 1))
+						{
+							p_temp_hold = new char[p_hold.length()];
+							newfx = true;
+						}
+					}
+					// cout << "PUSHED" << endl;
+					
 					if(b != (p_hold.length() - 1))
 					{
 						p_index = 0;
@@ -402,15 +426,25 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 				}
 			}
 			
-			if(p_temp_hold[p_index] != '\0')
+			if(newfx == false)
 			{
-				p_temp_hold[p_index]= '\0';                             			// Add Null Character on last string
+			if(p_temp_hold[0] != ' ' && p_temp_hold[p_index] != '\0')
+			{
+				p_temp_hold[p_index] = '\0';                             			// Add Null Character on last string
 			}
 			
-			para_temp.push_back(p_temp_hold);                         					// Add last string
-			cout << "PUSHED OUTSIDE" << endl;
+			if(p_temp_hold[1] == '\0' && p_temp_hold[0] != ' ')
+			{
+				para_temp.push_back(p_temp_hold);                         					// Add last string
+			}
+			}
+			// else if(p_temp_hold[1] != '\0' && p_temp_hold[0] != ' ')
+			// {
+			// 	para_temp.push_back(p_temp_hold);
+			// }
+			// cout << "PUSHED OUTSIDE" << endl;
 			para_temp.push_back('\0');                               				// Have the last index be '\0'
-			cout << "PUSHED NULL" << endl;
+			// cout << "PUSHED NULL" << endl;
 			
 			
 		char** p_argv;
@@ -418,7 +452,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 		char *p_copy; 
 		int p_count;
 		
-		cout << endl << para_temp.size() << endl;
+		// cout << endl << para_temp.size() << endl;
 		
 		// for ( int k = 0; k < temp.size(); k++)
 		// {
@@ -428,6 +462,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 		
  		for (int m = 0; m < (para_temp.size() - 1); m++)
  		{
+ 		    
  		    p_copy = para_temp.at(m);
  		    p_count = strlen(p_copy);
  			p_argv[m] = new char [p_count];
@@ -447,7 +482,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
  		cout << endl;
  		
   		para_cmd.push_back(p_argv);
-  		cout << endl << "Pushed into vec_cmd" << endl;
+  		// cout << endl << "Pushed into para_cmd" << endl;
   		// cmd_flag = false;
  	}
  	
@@ -456,7 +491,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
  		para_cmd.push_back('\0');
 
 
-	// TEST PRINTS
+	// // TEST PRINTS
  //   cout << endl << "vec_cmd Data:" << endl;
 	// for (int w = 0; w < vec_cmd.size(); w++)
 	// {
@@ -540,7 +575,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	// cout << 2 << endl;
 	// cout << test_t[2] << endl;
 	
-	cout << "End\n";
+	cout << "\nEnd";
 	
 }
 
@@ -905,6 +940,26 @@ bool test(const char* flag, char* path)
 
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con)
 {
+	//cout << "reg_cmd" << endl;
+	//for (int i = 0; i < reg_cmd.size(); i++)
+	//{
+	//	cout << reg_cmd.at(i) << endl;
+	//}
+	// 	cout << "para_cmd" << endl;
+	// for (int i = 0; i < para_cmd.size(); i++)
+	// {
+	// 	cout << para_cmd.at(i) << endl;
+	// }
+	// 	cout << "p_con" << endl;
+	// for (int i = 0; i < p_con.size(); i++)
+	// {
+	// 	cout << p_con.at(i) << endl;
+	// }
+	// 	cout << "con" << endl;
+	// for (int i = 0; i < con.size(); i++)
+	// {
+	// 	cout << con.at(i) << endl;
+	// }
 	int p_count = 0;
 	
 	int pcmd_index = 0;
@@ -916,95 +971,137 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	
 	vector<bool>p_outcomes;
 	
-	for (int i = 0; i < p_con.size(); i++)
+	if (!para_cmd.empty())
 	{
-		if (p_con.at(i) == '(')
+		for (int i = 0; i < p_con.size(); i++)
 		{
-			p_count++;
+			if (p_con.at(i) == '(')
+			{
+				p_count++;
+			}
 		}
-	}
-	for (int i = 0; i < p_count; i++)
-	{
-		if (p_con.at(pcon_index) == ')')
+		for (int i = 0; i < p_count; i++)
 		{
-			pcon_index++;
-		}
-		
-		while (p_con.at(pcon_index) != ')')
-		{
-			if (p_con.at(pcon_index) == '(')
+			if (p_con.at(pcon_index) == ')')
 			{
 				pcon_index++;
 			}
 			
-			bool p_ex = execute(para_cmd.at(pcmd_index));
-			
-			if ((p_ex == false && p_con.at(pcon_index) == '&') || (p_ex == true && p_con.at(pcon_index) == '|'))
+			while (p_con.at(pcon_index) != ')')
 			{
-				break;
-			}
-			
-			pcmd_index++;
-			pcon_index++;
-			
-			p_outcomes.push_back(p_ex);
-		}
-		if (i < con.size())
-		{
-			if (con.at(i) == ';' || con.at(i) == '&' || con.at(i) == '|')
-			{
-				//bool tmp;
-				int t_count = 0;
-				int f_count = 0;
-				if (p_outcomes.size() > 1)
+				if (p_con.at(pcon_index) == '(')
 				{
-					for (int j = 0; j < p_outcomes.size() - 1; j++)
+					pcon_index++;
+				}
+				
+				bool p_ex = execute(para_cmd.at(pcmd_index));
+				
+				if ((p_ex == false && p_con.at(pcon_index) == '&') || (p_ex == true && p_con.at(pcon_index) == '|'))
+				{
+					break;
+				}
+				if (pcmd_index < para_cmd.size() - 1)
+				{
+					pcmd_index++;
+				}
+				
+				pcon_index++;
+				
+				p_outcomes.push_back(p_ex);
+			}
+			if (i < con.size())
+			{
+				if (con.at(i) == ';' || con.at(i) == '&' || con.at(i) == '|')
+				{
+					//bool tmp;
+					int t_count = 0;
+					int f_count = 0;
+					if (p_outcomes.size() > 1)
 					{
-						if (p_outcomes.at(j))
+						for (int j = 0; j < p_outcomes.size() - 1; j++)
 						{
-							t_count++;
+							if (p_outcomes.at(j))
+							{
+								t_count++;
+							}
+							else
+							{
+								f_count++;
+							}
 						}
-						else
+					}
+					if (t_count >= f_count)
+					{
+						tmp = true;
+					}
+					else if (f_count > t_count)
+					{
+						tmp = false;
+					}
+					else
+					{
+						tmp = p_outcomes.at(0);
+					}
+				}
+				if ((tmp == true && con.at(i) == '|') || (tmp == false && con.at(i) == '&'))
+				{
+					break;
+				}			
+			}
+		}
+	}
+	if (con.empty() && !reg_cmd.empty())
+	{
+		bool b = execute(reg_cmd.at(0));
+	}
+	else if (!con.empty() && !reg_cmd.empty() && !para_cmd.empty())
+	{
+		if ((tmp == true && con.at(con_index) == '|') || (tmp == false && con.at(con_index) == '&'))
+		{
+			return;
+		}
+		else
+		{
+			for (int i = 0; i < reg_cmd.size() - 1; i++)
+			{
+				//cout << reg_cmd.at(i) << endl;
+				bool ex = execute(reg_cmd.at(i));
+				if (!con.empty() && con_index < con.size())
+				{
+					if ((ex == true && con.at(con_index) == '|') || (ex == false && con.at(con_index) == '&'))
+					{
+						break;
+					}
+					else
+					{
+						if (con_index < con.size())
 						{
-							f_count++;
+							con_index++;
 						}
 					}
 				}
-				if (t_count >= f_count)
-				{
-					tmp = true;
-				}
-				else if (f_count > t_count)
-				{
-					tmp = false;
-				}
-				else
-				{
-					tmp = p_outcomes.at(0);
-				}
 			}
-			if ((tmp == true && con.at(i) == '|') || (tmp == false && con.at(i) == '&'))
-			{
-				break;
-			}			
 		}
-	}
-	if ((tmp == true && con.at(con_index) == '|') || (tmp == false && con.at(con_index) == '&'))
-	{
-		return;
 	}
 	else
 	{
-		for (int i = 0; i < reg_cmd.size(); i++)
+		for (int i = 0; i < reg_cmd.size() - 1; i++)
 		{
+			//cout << reg_cmd.at(i) << endl;
 			bool ex = execute(reg_cmd.at(i));
-			if ((ex == true && con.at(con_index) == '|') || (ex == false && con.at(con_index) == '&'))
+			if (!con.empty() && con_index < con.size())
 			{
-				break;
-			}
-			else
-			{
-				con_index++;
+				if ((ex == true && con.at(con_index) == '|') || (ex == false && con.at(con_index) == '&'))
+				{
+					break;
+				}
+				else
+				{
+					if (con_index < con.size())
+					{
+						con_index++;
+					}
+				}
 			}
 		}
 	}
