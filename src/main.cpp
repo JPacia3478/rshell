@@ -382,7 +382,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
  	// ADD NULL CHARACTER TO END OF PARANTHESIS VECTOR COMMAND
  	if(!para_cmd.empty())
  		para_cmd.push_back('\0');
-}
+} // END OF PARSE FUNCTION
 
 
  bool execute(char **argv)
@@ -391,81 +391,82 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
     int status;
     bool executed;
     
-		executed = false;
+	executed = false;
 
-		string e = "-e";
-		string f = "-f";
-		string d = "-d";
+	string e = "-e";
+	string f = "-f";
+	string d = "-d";
 		
-		char* cd = new char[2];
-		char* ce = new char[2];
-		char* cf = new char[2];
+	char* cd = new char[2];
+	char* ce = new char[2];
+	char* cf = new char[2];
 		
-		cd[0] = d[0];
-		cd[1] = d[1];
-		ce[0] = e[0];
-		ce[1] = e[1];
-		cf[0] = f[0];
-		cf[1] = f[1];
+	cd[0] = d[0];
+	cd[1] = d[1];
+	ce[0] = e[0];
+	ce[1] = e[1];
+	cf[0] = f[0];
+	cf[1] = f[1];
 		
-		string t = "test";
-		char* ct = new char[4];
+	string t = "test";
+	char* ct = new char[4];
 		
-		for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
+	{
+		ct[i] = t[i];
+	}
+	if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
+	{
+		if (test(argv[0], argv[1]))
 		{
-			ct[i] = t[i];
+			executed = true;
 		}
-				if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
-				{
-					if (test(argv[0], argv[1]))
-					{
-						executed = true;
-					}
-				}
-			else if (strcmp(argv[0], ct) == 0)
+	}
+	else if (strcmp(argv[0], ct) == 0)
+	{
+		if (strcmp(argv[1],cd) == 0 || strcmp(argv[1],ce) == 0 || strcmp(argv[1],cf) == 0)
+		{
+			if (test(argv[1], argv[2]))
 			{
-				if (strcmp(argv[1],cd) == 0 || strcmp(argv[1],ce) == 0 || strcmp(argv[1],cf) == 0)
-				{
-					//bool tested = test(argv[0], argv[1]);//<--function for test command
-					if (test(argv[1], argv[2]))
-					{
-						executed = true;
-					}
-				}
+				executed = true;
 			}
-			else
-			{
-				char* hold = argv[0];
-				if (hold[0] == '/')
-				{
-					string e = "-e";
-					char *flag = new char[2];
-					flag[0] = e[0];
-					flag[1] = e[0];
+		}
+	}
+	else
+	{
+		char* hold = argv[0];
+				
+		if (hold[0] == '/')
+		{
+			string e = "-e";
+			char *flag = new char[2];
+			flag[0] = e[0];
+			flag[1] = e[0];
 
-					bool tested = test(flag, argv[0]);
-					if (test(flag, argv[0]))
-					{
-						executed = true;
-					}
-				}
+			bool tested = test(flag, argv[0]);
+					
+			if (test(flag, argv[0]))
+			{
+				executed = true;
 			}
-        if ((pid = fork()) < 0)
+		}
+	}
+    if ((pid = fork()) < 0)
+    {
+        perror("ERROR");
+    }
+    else if (pid == 0)
+    {
+        if (execvp(argv[0], argv) < 0)
         {
             perror("ERROR");
         }
-        else if (pid == 0)
-        {
-            if (execvp(argv[0], argv) < 0)
-            {
-                perror("ERROR");
-            }
-        }
-        else
-        {
-            while(wait(&status) != pid) {}
-			executed = true;
-        }
+    }
+    else
+    {
+        while(wait(&status) != pid) {}
+		executed = true;
+    }
 	delete [] argv;		// reset argument values
 	
 	return executed;
@@ -553,23 +554,22 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 		}
 		for (int i = 0; i < p_count; i++)
 		{
-			if (p_con.at(pcon_index) == ')')
+			if (p_con.at(pcon_index) == ')' && pcon_index < p_con.size())
 			{
 				pcon_index++;
 			}
 			
-			while (p_con.at(pcon_index) != ')')
+			while (p_con.at(pcon_index) != ')' && pcon_index < p_con.size())
 			{
-				if (p_con.at(pcon_index) == '(')
-				{
-					pcon_index++;
-				}
-				
 				bool p_ex = execute(para_cmd.at(pcmd_index));
-				
-				if ((p_ex == false && p_con.at(pcon_index) == '&') || (p_ex == true && p_con.at(pcon_index) == '|'))
+				p_outcomes.push_back(p_ex);
+				if (p_outcomes.size() > 1)
 				{
-					break;
+					if ((p_outcomes.at(p_outcomes.size() - 1) == false && p_con.at(pcon_index) == '&') 
+						|| (p_outcomes.at(p_outcomes.size() - 1) == true && p_con.at(pcon_index) == '|'))
+					{
+						break;
+					}
 				}
 				if (pcmd_index < para_cmd.size() - 1)
 				{
@@ -577,8 +577,6 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 				}
 				
 				pcon_index++;
-				
-				p_outcomes.push_back(p_ex);
 			}
 			if (i < con.size())
 			{
