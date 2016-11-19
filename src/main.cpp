@@ -327,228 +327,290 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		executed = false;
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-		
+		con_index++;
+		string e = "-e";
+		string f = "-f";
+		string d = "-d";
+		char* cd = new char[2];
+		char* ce = new char[2];
+		char* cf = new char[2];
+		cd[0] = d[0];
+		cd[1] = d[1];
+		ce[0] = e[0];
+		ce[1] = e[1];
+		cf[0] = f[0];
+		cf[1] = f[1];	
+		string t = "test";
+		char* ct = new char[4];
+		for (int i = 0; i < 4; i++)
+		{
+			ct[i] = t[i];
+		}
 		if(!con.empty())
 		{
 			if (con[con_index] == '[')
 			{
-				con_index++;
-				string e = "-e";
-				string f = "-f";
-				string d = "-d";
-				char* cd = new char[2];
-				char* ce = new char[2];
-				char* cf = new char[2];
-				cd[0] = d[0];
-				cd[1] = d[1];
-				ce[0] = e[0];
-				ce[1] = e[1];
-				cf[0] = f[0];
-				cf[1] = f[1];
-
 				if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
 				{
-					bool tested = test(argv[0], argv[1]);//<--function for test command
-					if (!tested)
-					{
-						if (con[con_index] == '|')
-	            		{
-	            			con_index = con_index + 2;
-	            			goto skip;
-	            		}
-	            		else if (con[con_index] == ';')
-	            		{
-	            			con_index++;
-	            			goto skip;
-	        			}
-	        			else if (con[con_index] == '&')
-	        			{
-	        				con_index = con_index + 2;
-	        				break;
-	        			}
-	        			else
-	        			{
-	        				goto skip;
-	        			}
-					}
-					else
+					//bool tested = test(argv[0], argv[1]);//<--function for test command
+					if (test(argv[0], argv[1]))
 					{
 						executed = true;
-						if (con[con_index] == '|')
-						{
-							con_index = con_index + 2;
-							goto ret;
-						}
-						else if (con[con_index] == ';')
-						{
-							con_index++;
-							goto skip;
-						}
-						else
-						{
-							con_index = con_index + 2;
-							goto skip;
-						}
 					}
+					// if (!tested)
+					// {
+					// 	if (con[con_index] == '|')
+	    //         		{
+	    //         			con_index = con_index + 2;
+	    //         			goto skip;
+	    //         		}
+	    //         		else if (con[con_index] == ';')
+	    //         		{
+	    //         			con_index++;
+	    //         			goto skip;
+	    //     			}
+	    //     			else if (con[con_index] == '&')
+	    //     			{
+	    //     				con_index = con_index + 2;
+	    //     				break;
+	    //     			}
+	    //     			else
+	    //     			{
+	    //     				goto skip;
+	    //     			}
+					// }
+					// else
+					// {
+					// 	executed = true;
+					// 	if (con[con_index] == '|')
+					// 	{
+					// 		con_index = con_index + 2;
+					// 		goto ret;
+					// 	}
+					// 	else if (con[con_index] == ';')
+					// 	{
+					// 		con_index++;
+					// 		goto skip;
+					// 	}
+					// 	else
+					// 	{
+					// 		con_index = con_index + 2;
+					// 		goto skip;
+					// 	}
+					// }
 				}
 			}
-
+			else if (strcmp(argv[0], ct) == 0)
+			{
+				if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
+				{
+					//bool tested = test(argv[0], argv[1]);//<--function for test command
+					if (test(argv[0], argv[1]))
+					{
+						executed = true;
+					}
+					// if (!tested)
+					// {
+					// 	if (con[con_index] == '|')
+	    //         		{
+	    //         			con_index = con_index + 2;
+	    //         			goto skip;
+	    //         		}
+	    //         		else if (con[con_index] == ';')
+	    //         		{
+	    //         			con_index++;
+	    //         			goto skip;
+	    //     			}
+	    //     			else if (con[con_index] == '&')
+	    //     			{
+	    //     				con_index = con_index + 2;
+	    //     				break;
+	    //     			}
+	    //     			else
+	    //     			{
+	    //     				goto skip;
+	    //     			}
+					// }
+					// else
+					// {
+					// 	executed = true;
+					// 	if (con[con_index] == '|')
+					// 	{
+					// 		con_index = con_index + 2;
+					// 		goto ret;
+					// 	}
+					// 	else if (con[con_index] == ';')
+					// 	{
+					// 		con_index++;
+					// 		goto skip;
+					// 	}
+					// 	else
+					// 	{
+					// 		con_index = con_index + 2;
+					// 		goto skip;
+					// 	}
+					// }
+				}
+			}
 			else
 			{
 				char* hold = argv[0];
 				if (hold[0] == '/')
 				{
-					
 					string e = "-e";
 					char *flag = new char[2];
 					flag[0] = e[0];
 					flag[1] = e[0];
 
 					bool tested = test(flag, argv[0]);
-					if (!tested)	//<--function for test command
-					{
-						if(!con.empty())
-						{
-							if (con[con_index] == '|')
-	            			{
-	            				con_index = con_index + 2;
-	            				goto skip;
-	            			}
-	            			else if (con[con_index] == ';')
-	            			{
-	            				con_index++;
-	            				goto skip;
-	        				}
-	        				else if (con[con_index] == '&')
-	        				{
-	        					con_index = con_index + 2;
-	        					break;
-	        				}
-						}
-        				else
-        				{
-        					goto skip;
-        				}
-					}
-					else
+					if (test(flag, argv[0]))
 					{
 						executed = true;
-						if(!con.empty())
-						{
-							if (con[con_index] == '|')
-							{
-								con_index = con_index + 2;
-								goto ret;
-							}
-							else if (con[con_index] == ';')
-							{
-								con_index++;
-								goto skip;
-							}
-							else
-							{
-								con_index = con_index + 2;
-								goto skip;
-							}
-						}
-						else
-						{
-							goto skip;
-						}
 					}
+					// if (!tested)	//<--function for test command
+					// {
+					// 	if(!con.empty())
+					// 	{
+					// 		if (con[con_index] == '|')
+	    //         			{
+	    //         				con_index = con_index + 2;
+	    //         				goto skip;
+	    //         			}
+	    //         			else if (con[con_index] == ';')
+	    //         			{
+	    //         				con_index++;
+	    //         				goto skip;
+	    //     				}
+	    //     				else if (con[con_index] == '&')
+	    //     				{
+	    //     					con_index = con_index + 2;
+	    //     					break;
+	    //     				}
+					// 	}
+     //   				else
+     //   				{
+     //   					goto skip;
+     //   				}
+					// }
+					// else
+					// {
+					// 	executed = true;
+					// 	if(!con.empty())
+					// 	{
+					// 		if (con[con_index] == '|')
+					// 		{
+					// 			con_index = con_index + 2;
+					// 			goto ret;
+					// 		}
+					// 		else if (con[con_index] == ';')
+					// 		{
+					// 			con_index++;
+					// 			goto skip;
+					// 		}
+					// 		else
+					// 		{
+					// 			con_index = con_index + 2;
+					// 			goto skip;
+					// 		}
+					// 	}
+					// 	else
+					// 	{
+					// 		goto skip;
+					// 	}
+					// }
 				}
 			}
 		}
         if ((pid = fork()) < 0)
         {
             perror("ERROR");
-            if (!con.empty())
-            {
-	            if(con[con_index] == '|')
-	            {
-	              con_index = con_index + 2;
-	              goto skip;
-	            }
-	            else if (con[con_index] == ';')
-	            {
-	            	con_index++;
-	            	goto skip;
-	            }
-	            else if (con[con_index] == '&')
-	            {
-	            	con_index = con_index + 2;
-	            	break;
-	            }
-            }
-            else
-            {
-                goto skip;
-            }
+            // if (!con.empty())
+            // {
+	           // if(con[con_index] == '|')
+	           // {
+	           //   con_index = con_index + 2;
+	           //   goto skip;
+	           // }
+	           // else if (con[con_index] == ';')
+	           // {
+	           // 	con_index++;
+	           // 	goto skip;
+	           // }
+	           // else if (con[con_index] == '&')
+	           // {
+	           // 	con_index = con_index + 2;
+	           // 	break;
+	           // }
+            // }
+            // else
+            // {
+            //     goto skip;
+            // }
         }
         else if (pid == 0)
         {
             if (execvp(argv[0], argv) < 0)
             {
                 perror("ERROR");
-                if (!con.empty())
-                {
-	                if(con[con_index] == '|')
-	                {
-	                	con_index + 2;
-	                    goto skip;
-	                }
-	                else if (con[con_index] == ';')
-	                {
-	                	con_index++;
-	                	goto skip;
-	                }
-	                else if (con[con_index] == '&')
-	            	{
-	            		con_index = con_index + 2;
-	            		break;
-	            	}
-                }
-                else
-                {
-                    goto skip;
-                }
+              //  if (!con.empty())
+              //  {
+	             //   if(con[con_index] == '|')
+	             //   {
+	             //   	con_index + 2;
+	             //       goto skip;
+	             //   }
+	             //   else if (con[con_index] == ';')
+	             //   {
+	             //   	con_index++;
+	             //   	goto skip;
+	             //   }
+	             //   else if (con[con_index] == '&')
+	            	// {
+	            	// 	con_index = con_index + 2;
+	            	// 	break;
+	            	// }
+              //  }
+              //  else
+              //  {
+              //      goto skip;
+              //  }
             }
         }
         else
         {
             while(wait(&status) != pid)
             {
-            	if (!con.empty())
-            	{
-		            if (con[con_index] == '|')
-		            {
-		            	con_index = con_index + 2;
-		            	goto ret;
-		            }
-		            else if (con[con_index] == ';')
-		            {
-		            	con_index++;
-		            	goto skip;
-		            }
-		            else
-		            {
-		            	con_index = con_index + 2;
-		            	goto skip;
-		            }
-            	}
-            	else
-            	{
-            		goto skip;
-            	    executed = true;	
-            	}
+            	// if (!con.empty())
+            	// {
+		           // if (con[con_index] == '|')
+		           // {
+		           // 	con_index = con_index + 2;
+		           // 	goto ret;
+		           // }
+		           // else if (con[con_index] == ';')
+		           // {
+		           // 	con_index++;
+		           // 	goto skip;
+		           // }
+		           // else
+		           // {
+		           // 	con_index = con_index + 2;
+		           // 	goto skip;
+		           // }
+            	// }
+            	// else
+            	// {
+            	// 	goto skip;
+            	//     executed = true;	
+            	// }
             }
-
+			executed = true;
         }
         
-        skip:
+        //skip:
 		delete [] argv;		// reset argument values
 	}
-	ret:
+	//ret:
 	return executed;
 }
 
