@@ -45,6 +45,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 			else if(letter[i] == '[')
 			{
 				con.push_back(letter[i]);
+				i++;
 			}
 			else if(letter[i] == ']')
 			{
@@ -99,7 +100,9 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 						}
 					}
 					else
+					{
 						clean = true;
+					}
 				}
 				cmd.push_back(temp);
 				temp = "";
@@ -324,7 +327,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		executed = false;
 		char **argv = new char *[cmd.size()];
 		argv = cmd[cmd_index];
-
+		
 		if(!con.empty())
 		{
 			if (con[con_index] == '[')
@@ -374,7 +377,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 						if (con[con_index] == '|')
 						{
 							con_index = con_index + 2;
-							break;
+							goto ret;
 						}
 						else if (con[con_index] == ';')
 						{
@@ -389,7 +392,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 					}
 				}
 			}
-		
+
 			else
 			{
 				char* hold = argv[0];
@@ -435,7 +438,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 							if (con[con_index] == '|')
 							{
 								con_index = con_index + 2;
-								break;
+								goto ret;
 							}
 							else if (con[con_index] == ';')
 							{
@@ -520,7 +523,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
 		            if (con[con_index] == '|')
 		            {
 		            	con_index = con_index + 2;
-		            	break;		// Break out if '|' is detected and previous command has succeeded
+		            	goto ret;
 		            }
 		            else if (con[con_index] == ';')
 		            {
@@ -545,6 +548,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char> &con)
         skip:
 		delete [] argv;		// reset argument values
 	}
+	ret:
 	return executed;
 }
 
