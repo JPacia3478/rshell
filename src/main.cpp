@@ -540,15 +540,15 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	// cout << 2 << endl;
 	// cout << test_t[2] << endl;
 	
-	cout << "\nEnd";
+	cout << "End\n";
 	
 }
 
 
  bool execute(char **argv/*, vector<char>con*/)
  {
-	int cmd_index = 0;
-	int con_index = 0;
+	//int cmd_index = 0;
+	//int con_index = 0;
 	pid_t pid;
     int status;
     bool executed;
@@ -556,9 +556,9 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 //	for (cmd_index = 0; cmd_index < cmd.size(); cmd_index++)	// Scan user input
 //	{
 		executed = false;
-		char **argv = new char *[cmd.size()];
-		argv = cmd[cmd_index];
-		con_index++;
+		//char **argv = new char *[cmd.size()];
+		//argv = cmd[cmd_index];
+		//con_index++;
 		string e = "-e";
 		string f = "-f";
 		string d = "-d";
@@ -905,33 +905,138 @@ bool test(const char* flag, char* path)
 
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con)
 {
+	int p_count = 0;
 	
+	int pcmd_index = 0;
+	int pcon_index = 0;
+	int cmd_index = 0;
+	int con_index = 0;
+	
+	bool tmp;
+	
+	vector<bool>p_outcomes;
+	
+	for (int i = 0; i < p_con.size(); i++)
+	{
+		if (p_con.at(i) == '(')
+		{
+			p_count++;
+		}
+	}
+	for (int i = 0; i < p_count; i++)
+	{
+		if (p_con.at(pcon_index) == ')')
+		{
+			pcon_index++;
+		}
+		
+		while (p_con.at(pcon_index) != ')')
+		{
+			if (p_con.at(pcon_index) == '(')
+			{
+				pcon_index++;
+			}
+			
+			bool p_ex = execute(para_cmd.at(pcmd_index));
+			
+			if ((p_ex == false && p_con.at(pcon_index) == '&') || (p_ex == true && p_con.at(pcon_index) == '|'))
+			{
+				break;
+			}
+			
+			pcmd_index++;
+			pcon_index++;
+			
+			p_outcomes.push_back(p_ex);
+		}
+		if (i < con.size())
+		{
+			if (con.at(i) == ';' || con.at(i) == '&' || con.at(i) == '|')
+			{
+				//bool tmp;
+				int t_count = 0;
+				int f_count = 0;
+				if (p_outcomes.size() > 1)
+				{
+					for (int j = 0; j < p_outcomes.size() - 1; j++)
+					{
+						if (p_outcomes.at(j))
+						{
+							t_count++;
+						}
+						else
+						{
+							f_count++;
+						}
+					}
+				}
+				if (t_count >= f_count)
+				{
+					tmp = true;
+				}
+				else if (f_count > t_count)
+				{
+					tmp = false;
+				}
+				else
+				{
+					tmp = p_outcomes.at(0);
+				}
+			}
+			if ((tmp == true && con.at(i) == '|') || (tmp == false && con.at(i) == '&'))
+			{
+				break;
+			}			
+		}
+	}
+	if ((tmp == true && con.at(con_index) == '|') || (tmp == false && con.at(con_index) == '&'))
+	{
+		return;
+	}
+	else
+	{
+		for (int i = 0; i < reg_cmd.size(); i++)
+		{
+			bool ex = execute(reg_cmd.at(i));
+			if ((ex == true && con.at(con_index) == '|') || (ex == false && con.at(con_index) == '&'))
+			{
+				break;
+			}
+			else
+			{
+				con_index++;
+			}
+		}
+	}
 }
 
 int main()
 {
     vector<char>con;
+    vector<char>p_con;
     vector<char**> vec_cmd;
-    cout << "This is our command shell." << endl;
+    vector<char**>para_cmd;
+
     while (true)
     {	   
     	string input;
-  	    char *argv[64];  
   	    
     	vec_cmd.clear();
+    	para_cmd.clear();
+    	p_con.clear();
     	con.clear();
     	
 	    cout << "$ ";
 
 	    getline(cin, input);
 
-		//char *temp = new char[input.length() + 1];
-		//strcpy(temp, input.c_str());
 	    if (input == "exit")
 	    {
 	    	exit(0);
 	    }
-	  	parse(input, vec_cmd, con);  
+	    
+	  	parse(input, vec_cmd, para_cmd,p_con, con);
+	  	evaluate(vec_cmd, para_cmd, p_con, con);
 	}
       return 0;
 }
