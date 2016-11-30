@@ -14,6 +14,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 bool execute(char **argv);
 bool test(const char* flag, char* path);
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con);
+bool cd(char **argv);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vector<char> &p_con, vector<char> &con)
 {
@@ -671,6 +672,11 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 			}
 		}
 	}
+}
+
+bool cd(char **argv)
+{
+	
 }
 
 int main()

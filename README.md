@@ -2,7 +2,7 @@ Mitchell Kim
 Joseph Pacia
 CS100 Fall 2016
 
-Assignment 3 - Writing a Basic Command Shell
+Assignment 4 - Writing a Basic Command Shell
 
 Description:
     The program retrieves a user input of command line as a string and is then passed into a parse function.
