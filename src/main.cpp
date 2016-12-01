@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <pwd.h>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 bool execute(char **argv);
 bool test(const char* flag, char* path);
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con);
-bool cd(char *dir);
+bool cD(char *dir);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vector<char> &p_con, vector<char> &con)
 {
@@ -420,6 +421,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	{
 		ct[i] = t[i];
 	}
+
 	if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
 	{
 		if (test(argv[0], argv[1]))
@@ -439,7 +441,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	}
 	else if (strcmp(argv[0], cchd) == 0)
 	{
-		if (cd(argv[1]))
+		if (cD(argv[1]))
 		{
 			executed = true;
 		}
@@ -685,8 +687,9 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	}
 }
 
-bool cd(char *dir)
+bool cD(char *dir)
 {
+
 	string dash = "-";
 	char *cdash = new char[1];
 	bool changed = false;
@@ -712,6 +715,12 @@ bool cd(char *dir)
 	// Change to Home Directory
 	else if (dir == NULL)
 	{
+		// char* home_dir = getenv("HOME");
+		
+		// if (home_dir == NULL)
+		// {
+		// 	home_dir = getpwuid(getuid())->pw_dir;
+		// }
 		if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0)
 		{
 			perror("ERROR");
@@ -727,7 +736,7 @@ bool cd(char *dir)
 	{
 		// Hold current directory before modifying
 		// If its the same directory
-		if(strcmp( getenv("OLDPWD"), getenv("PWD")) == 0)
+		if (strcmp(getenv("OLDPWD"), getenv("PWD")) == 0)
 		{
 			// Do Nothing
 		}
