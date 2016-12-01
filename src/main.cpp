@@ -676,7 +676,26 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 
 bool cd(char **argv)
 {
+	string dash = "-";
+	char *cdash = new char[1];
+	bool changed = false;
 	
+	cdash[0] = dash[0];
+	
+	if (argv[1] == cdash)
+	{
+		
+	}
+	else if (argv[1] == NULL)
+	{
+	
+	}
+	else
+	{
+		
+	}
+	
+	return changed;
 }
 
 int main()
