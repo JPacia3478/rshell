@@ -14,7 +14,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 bool execute(char **argv);
 bool test(const char* flag, char* path);
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con);
-bool cd(char **argv);
+bool cd(char **argv, char *temp_dir);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vector<char> &p_con, vector<char> &con)
 {
@@ -674,7 +674,7 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	}
 }
 
-bool cd(char **argv)
+bool cd(char **argv, char *temp_dir)
 {
 	string dash = "-";
 	char *cdash = new char[1];
@@ -682,17 +682,36 @@ bool cd(char **argv)
 	
 	cdash[0] = dash[0];
 	
+	// If user input is "cd -"
+	// Change to previous directory
 	if (argv[1] == cdash)
 	{
 		
 	}
+	// Else If user input is "cd"
 	else if (argv[1] == NULL)
 	{
-	
+		if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0)
+		{
+			perror("ERROR");
+		}
+		else
+		{
+			changed = true;
+		}
 	}
+	// Else user input is "cd xxx/xxxx/xxx"
 	else
 	{
-		
+		if (chdir(argv[1]) < 0 || setenv("PWD", argv[1], 1) < 0)
+		{
+			perror("ERROR");
+		}
+		else
+		{
+			
+			changed = true;
+		}
 	}
 	
 	return changed;
