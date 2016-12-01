@@ -14,7 +14,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 bool execute(char **argv);
 bool test(const char* flag, char* path);
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con);
-bool cd(char **argv, char *temp_dir);
+bool cd(char *dir);
 
 void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vector<char> &p_con, vector<char> &con)
 {
@@ -674,7 +674,7 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	}
 }
 
-bool cd(char **argv, char *temp_dir)
+bool cd(char *dir)
 {
 	string dash = "-";
 	char *cdash = new char[1];
@@ -684,12 +684,22 @@ bool cd(char **argv, char *temp_dir)
 	
 	// If user input is "cd -"
 	// Change to previous directory
-	if (argv[1] == cdash)
+	if (dir == cdash)
 	{
+		char *tmp_dir = getenv("PWD");
 		
+		if (chdir(getenv("OLDPWD")) < 0 || setenv("PWD", getenv("OLDPWD"), 1) < 0 || setenv("OLDPWD", tmp_dir, 1) < 0)
+		{
+			perror("ERROR");
+		}
+		else
+		{
+			changed = true;
+		}
 	}
 	// Else If user input is "cd"
-	else if (argv[1] == NULL)
+	// Change to Home Directory
+	else if (dir == NULL)
 	{
 		if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0)
 		{
@@ -701,15 +711,26 @@ bool cd(char **argv, char *temp_dir)
 		}
 	}
 	// Else user input is "cd xxx/xxxx/xxx"
+	// Change to inputted path
 	else
 	{
-		if (chdir(argv[1]) < 0 || setenv("PWD", argv[1], 1) < 0)
+		// Hold current directory before modifying
+		// If its the same directory
+		if(strcmp( getenv("OLDPWD"), getenv("PWD")) == 0)
+		{
+			// Do Nothing
+		}
+		else
+		{
+			setenv("OLDPWD", getenv("PWD"), 1);
+		}
+		
+		if (chdir(dir) < 0 || setenv("PWD", dir, 1) < 0)
 		{
 			perror("ERROR");
 		}
 		else
 		{
-			
 			changed = true;
 		}
 	}
