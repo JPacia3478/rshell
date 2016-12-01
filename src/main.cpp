@@ -456,31 +456,33 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			char *flag = new char[2];
 			flag[0] = e[0];
 			flag[1] = e[0];
-
-			bool tested = test(flag, argv[0]);
 					
 			if (test(flag, argv[0]))
 			{
 				executed = true;
 			}
 		}
+		else
+		{
+		    if ((pid = fork()) < 0)
+		    {
+		        perror("ERROR");
+		    }
+		    else if (pid == 0)
+		    {
+		        if (execvp(argv[0], argv) < 0)
+		        {
+		            perror("ERROR");
+		        }
+		    }
+		    else
+		    {
+		        while(wait(&status) != pid) {}
+				executed = true;
+		    }			
+		}
 	}
-    if ((pid = fork()) < 0)
-    {
-        perror("ERROR");
-    }
-    else if (pid == 0)
-    {
-        if (execvp(argv[0], argv) < 0)
-        {
-            perror("ERROR");
-        }
-    }
-    else
-    {
-        while(wait(&status) != pid) {}
-		executed = true;
-    }
+
 	delete [] argv;		// reset argument values
 	
 	return executed;
@@ -698,61 +700,67 @@ bool cD(char *dir)
 	
 	// If user input is "cd -"
 	// Change to previous directory
-	if (dir == cdash)
+	if (dir == '\0')
+	{
+		char *tmp_dir = getenv("PWD");
+		if(getenv("PWD") == getenv("HOME"))
+		{
+			// Do Nothing
+					cout << "e" << endl;
+		}
+		else if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0 || setenv("OLDPWD", tmp_dir, 1) < 1)
+		{
+			perror("cd home");
+		}
+		else
+		{
+			cout << "TOOK TO HOME" << endl;
+			changed = true;
+		}
+	}
+	else if (strcmp(dir, cdash) == 0)
 	{
 		char *tmp_dir = getenv("PWD");
 		
 		if (chdir(getenv("OLDPWD")) < 0 || setenv("PWD", getenv("OLDPWD"), 1) < 0 || setenv("OLDPWD", tmp_dir, 1) < 0)
 		{
-			perror("ERROR");
+			perror("cd previous");
 		}
 		else
 		{
+			// setenv("PWD", getenv("OLDPWD"), 1);
 			changed = true;
 		}
 	}
-	// Else If user input is "cd"
-	// Change to Home Directory
-	else if (dir == NULL)
-	{
-		// char* home_dir = getenv("HOME");
-		
-		// if (home_dir == NULL)
-		// {
-		// 	home_dir = getpwuid(getuid())->pw_dir;
-		// }
-		if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0)
-		{
-			perror("ERROR");
-		}
-		else
-		{
-			changed = true;
-		}
-	}
+
 	// Else user input is "cd xxx/xxxx/xxx"
 	// Change to inputted path
 	else
 	{
 		// Hold current directory before modifying
 		// If its the same directory
-		if (strcmp(getenv("OLDPWD"), getenv("PWD")) == 0)
-		{
-			// Do Nothing
-		}
-		else
-		{
-			setenv("OLDPWD", getenv("PWD"), 1);
-		}
-		
-		if (chdir(dir) < 0 || setenv("PWD", dir, 1) < 0)
-		{
-			perror("ERROR");
-		}
-		else
-		{
-			changed = true;
-		}
+		cout << "ELSE" << endl;
+			if (getenv("OLDPWD") == getenv("PWD"))
+			{
+				// Do Nothing
+			}
+			else
+			{
+				if (setenv("OLDPWD", getenv("PWD"), 1))
+				{
+					perror("cd save previous");
+				}
+			}
+			
+			if (chdir(dir) < 0 || setenv("PWD", dir, 1) < 0)
+			{
+				perror("cd");
+			}
+			else
+			{
+				setenv("PWD", dir, 1);
+				changed = true;
+			}
 	}
 	
 	return changed;
