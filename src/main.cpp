@@ -397,10 +397,12 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	string e = "-e";
 	string f = "-f";
 	string d = "-d";
+	string chd = "cd";
 		
 	char* cd = new char[2];
 	char* ce = new char[2];
 	char* cf = new char[2];
+	char* cchd = new char[2];
 		
 	cd[0] = d[0];
 	cd[1] = d[1];
@@ -408,6 +410,8 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	ce[1] = e[1];
 	cf[0] = f[0];
 	cf[1] = f[1];
+	cchd[0] = chd[0];
+	cchd[1] = chd[1];	
 		
 	string t = "test";
 	char* ct = new char[4];
@@ -431,6 +435,13 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			{
 				executed = true;
 			}
+		}
+	}
+	else if (strcmp(argv[0], cchd) == 0)
+	{
+		if (cd(argv[1]))
+		{
+			executed = true;
 		}
 	}
 	else
