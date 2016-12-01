@@ -740,27 +740,27 @@ bool cD(char *dir)
 		// Hold current directory before modifying
 		// If its the same directory
 		cout << "ELSE" << endl;
-			if (getenv("OLDPWD") == getenv("PWD"))
+		if (getenv("OLDPWD") == getenv("PWD"))
+		{
+			// Do Nothing
+		}
+		else
+		{
+			if (setenv("OLDPWD", getenv("PWD"), 1))
 			{
-				// Do Nothing
+				perror("cd save previous");
 			}
-			else
-			{
-				if (setenv("OLDPWD", getenv("PWD"), 1))
-				{
-					perror("cd save previous");
-				}
-			}
-			
-			if (chdir(dir) < 0 || setenv("PWD", dir, 1) < 0)
-			{
-				perror("cd");
-			}
-			else
-			{
-				setenv("PWD", dir, 1);
-				changed = true;
-			}
+		}
+		
+		if (chdir(dir) < 0 || setenv("PWD", dir, 1) < 0)
+		{
+			perror("cd");
+		}
+		else
+		{
+			setenv("PWD", dir, 1);
+			changed = true;
+		}
 	}
 	
 	return changed;
