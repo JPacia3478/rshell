@@ -387,7 +387,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 } // END OF PARSE FUNCTION
 
 
- bool execute(char **argv)
+ bool execute(char **argv)	// Function for executing a single command
  {
 	pid_t pid;
     int status;
@@ -421,7 +421,8 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	{
 		ct[i] = t[i];
 	}
-
+	
+	// If the first word is a test flag
 	if (strcmp(argv[0],cd) == 0 || strcmp(argv[0],ce) == 0 || strcmp(argv[0],cf) == 0)
 	{
 		if (test(argv[0], argv[1]))
@@ -429,6 +430,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			executed = true;
 		}
 	}
+	// If the first word is "test"
 	else if (strcmp(argv[0], ct) == 0)
 	{
 		if (strcmp(argv[1],cd) == 0 || strcmp(argv[1],ce) == 0 || strcmp(argv[1],cf) == 0)
@@ -439,6 +441,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 			}
 		}
 	}
+	// If the first word is "cd"
 	else if (strcmp(argv[0], cchd) == 0)
 	{
 		if (cD(argv[1]))
@@ -449,7 +452,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	else
 	{
 		char* hold = argv[0];
-				
+		// If there is no test flag but a directory instead		
 		if (hold[0] == '/')
 		{
 			string e = "-e";
@@ -462,22 +465,26 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 				executed = true;
 			}
 		}
+		// otherwise the user input is a command to be executed by execvp()
 		else
 		{
+			// check if the process forked
 		    if ((pid = fork()) < 0)
 		    {
-		        perror("ERROR");
+		        perror("Fork");
 		    }
 		    else if (pid == 0)
 		    {
+		    	// Check if command executed properly
 		        if (execvp(argv[0], argv) < 0)
 		        {
-		            perror("ERROR");
+		            perror("execvp");
 		        }
 		    }
 		    else
 		    {
 		        while(wait(&status) != pid) {}
+		        // Command executed properly
 				executed = true;
 		    }			
 		}
@@ -488,7 +495,7 @@ void parse(string letter, vector<char**> &vec_cmd, vector<char**> &para_cmd, vec
 	return executed;
 }
 
-bool test(const char* flag, char* path)
+bool test(const char* flag, char* path)		// Function for the test command
 {
 	struct stat sb;
 	string d = "-d";
@@ -502,9 +509,10 @@ bool test(const char* flag, char* path)
 	cf[0] = f[0];
 	cf[1] = f[1];
 	
+	// If the directory does not exist
 	if (stat(path, &sb) < 0)
 	{
-		perror("ERROR");
+		perror("stat");
 		cout << "(False)" << endl;
 		return false;
 	}
@@ -512,9 +520,10 @@ bool test(const char* flag, char* path)
 	{
 		if (strcmp(flag,cf) == 0)
 		{
+			// Check if user input is a file
 			if (S_ISREG(sb.st_mode) < 0)
 			{
-				perror("ERROR");
+				perror("isFile");
 				cout << "(False)" << endl;
 				return false;
 			}
@@ -526,14 +535,16 @@ bool test(const char* flag, char* path)
 		}
 		else if (strcmp(flag,cd) == 0)
 		{
+			// Check if user input is a directory
 			if (S_ISDIR(sb.st_mode) < 0)
 			{
-				perror("ERROR");
+				perror("isDirectory");
 				cout << "(False)" << endl;
 				return false;
 			}
 			else
 			{
+				// File/directory exists
 				cout << "(True)" << endl;
 				return true;
 			}
@@ -546,6 +557,7 @@ bool test(const char* flag, char* path)
 	}
 }
 
+// Function for checking user input, which functions to call based on the requested commands
 void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, vector<char>con)
 {
 	int p_count = 0;
@@ -559,6 +571,7 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	
 	vector<bool>p_outcomes;
 	
+	// If parentheses are present
 	if (!para_cmd.empty())
 	{
 		for (int i = 0; i < p_con.size(); i++)
@@ -575,18 +588,23 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 				pcon_index++;
 			}
 			
+			// Run through commands in parentheses
 			while (p_con.at(pcon_index) != ')' && pcon_index < p_con.size())
 			{
 				bool p_ex = execute(para_cmd.at(pcmd_index));
 				p_outcomes.push_back(p_ex);
+				
 				if (p_outcomes.size() > 1)
 				{
+					// If previous command failed and the next connector is & or if previous command...
+					// ... succeeded and the next connector is |
 					if ((p_outcomes.at(p_outcomes.size() - 1) == false && p_con.at(pcon_index) == '&') 
 						|| (p_outcomes.at(p_outcomes.size() - 1) == true && p_con.at(pcon_index) == '|'))
 					{
 						break;
 					}
 				}
+				
 				if (pcmd_index < para_cmd.size() - 1)
 				{
 					pcmd_index++;
@@ -594,8 +612,10 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 				
 				pcon_index++;
 			}
+			
 			if (i < con.size())
 			{
+				// Determine total outcome of commands in parentheses
 				if (con.at(i) == ';' || con.at(i) == '&' || con.at(i) == '|')
 				{
 					int t_count = 0;
@@ -634,10 +654,12 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 			}
 		}
 	}
+	// If there are no connectors and a single command
 	if (con.empty() && !reg_cmd.empty())
 	{
 		bool b = execute(reg_cmd.at(0));
 	}
+	
 	else if (!con.empty() && !reg_cmd.empty() && !para_cmd.empty())
 	{
 		if ((tmp == true && con.at(con_index) == '|') || (tmp == false && con.at(con_index) == '&'))
@@ -689,7 +711,7 @@ void evaluate(vector<char**>reg_cmd, vector<char**>para_cmd, vector<char>p_con, 
 	}
 }
 
-bool cD(char *dir)
+bool cD(char *dir)	// Function for the cd command
 {
 
 	string dash = "-";
@@ -698,15 +720,14 @@ bool cD(char *dir)
 	
 	cdash[0] = dash[0];
 	
-	// If user input is "cd -"
-	// Change to previous directory
+	// If user input is "cd"
+	// Change to home directory
 	if (dir == '\0')
 	{
 		char *tmp_dir = getenv("PWD");
 		if(getenv("PWD") == getenv("HOME"))
 		{
 			// Do Nothing
-					cout << "e" << endl;
 		}
 		else if (chdir(getenv("HOME")) < 0 || setenv("PWD", getenv("HOME"), 1) < 0 || setenv("OLDPWD", tmp_dir, 1) < 1)
 		{
@@ -714,10 +735,11 @@ bool cD(char *dir)
 		}
 		else
 		{
-			cout << "TOOK TO HOME" << endl;
 			changed = true;
 		}
 	}
+	// If user input is "cd -"
+	// Change to previous directory
 	else if (strcmp(dir, cdash) == 0)
 	{
 		char *tmp_dir = getenv("PWD");
@@ -728,7 +750,6 @@ bool cD(char *dir)
 		}
 		else
 		{
-			// setenv("PWD", getenv("OLDPWD"), 1);
 			changed = true;
 		}
 	}
@@ -737,15 +758,14 @@ bool cD(char *dir)
 	// Change to inputted path
 	else
 	{
-		// Hold current directory before modifying
 		// If its the same directory
-		cout << "ELSE" << endl;
 		if (getenv("OLDPWD") == getenv("PWD"))
 		{
 			// Do Nothing
 		}
 		else
 		{
+			// Hold current directory before modifying			
 			if (setenv("OLDPWD", getenv("PWD"), 1))
 			{
 				perror("cd save previous");
@@ -758,7 +778,6 @@ bool cD(char *dir)
 		}
 		else
 		{
-			setenv("PWD", dir, 1);
 			changed = true;
 		}
 	}

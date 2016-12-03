@@ -10,7 +10,7 @@ The parse function sorts out the string and transfer the parsed string into a ve
 then be used for the execvp function. The vector of char** is then passed into our execute function, which 
 then executes the respective command lines in regards to their respective connectors( ; , && , || ).
 Functionality for checking file/directory existence and for precedence operators (parentheses), have been
-added to this program.
+added to this program. UPDATE: Functionality for the cd command has been added to this program:
 
 Known bugs:
     - Code began glitching once we clean up our comments (??)
@@ -19,4 +19,5 @@ Known bugs:
       the function then runs into a segmentation fault
         Ex. ( ls -a; echo hello && mkdir test || echo world; git status )
             - The first connector (;) is the same as the last (;)
+    - Sometimes it takes so far up to four tries to exit the shell.
     
